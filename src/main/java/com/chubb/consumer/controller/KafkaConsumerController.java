@@ -11,6 +11,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 //import org.springframework.web.bind.annotation.RestController;
 
 import com.chubb.consumer.entity.Product;
+import com.chubb.consumer.exception.ResourceNotFoundException;
 import com.chubb.consumer.service.ProductService;
 
 //@SpringBootApplication
@@ -30,8 +31,12 @@ public class KafkaConsumerController {
 	Product productFromTopic = null;
 
 	@GetMapping("/consumeJsonMessage")
-	public List<Product> consumeJsonMessage() {
-		service.saveProducts(productList);
+	public List<Product> consumeJsonMessage() throws ResourceNotFoundException {
+		if(productList.isEmpty()) {
+			throw new ResourceNotFoundException("List is Empty");
+		}else {
+			service.saveProducts(productList);
+		}
 		return productList;
 	}
 	/*
@@ -41,7 +46,7 @@ public class KafkaConsumerController {
 	 */
 
 	
-	@KafkaListener(groupId = "rajdb-1", topics = "rajdb", containerFactory = "userKafkaListenerContainerFactory")
+	@KafkaListener(groupId = "rajdb-1", topics = "rajdb1", containerFactory = "userKafkaListenerContainerFactory")
 	public List<Product> getJsonMsgFromTopic(Product product) {
 		productFromTopic = product;
 		productList.add(productFromTopic);
